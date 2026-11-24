@@ -8,17 +8,22 @@ export const getContactsDuration = new Trend('get_contacts', true);
 export const RateContentOK = new Rate('content_OK');
 
 export const options = {
-  thresholds: {
-    http_req_failed: ['rate<0.30'],
-    get_contacts: ['p(99)<500'],
-    content_OK: ['rate>0.95']
+  scenarios: {
+    contacts: {
+      executor: 'ramping-vus',
+      startVUs: 7,
+      stages: [
+        { duration: '30s', target: 7 },
+        { duration: '60s', target: 50 },
+        { duration: '60s', target: 92 },
+        { duration: '60s', target: 92 }
+      ]
+    }
   },
-  stages: [
-    { duration: '5s', target: 5 },
-    { duration: '5s', target: 10 },
-    { duration: '5s', target: 50 },
-    { duration: '5s', target: 100 },
-  ]
+  thresholds: {
+    get_contacts: ['p(90)<6800'],
+    http_req_failed: ['rate<0.25']
+  }
 };
 
 export function handleSummary(data) {
@@ -29,7 +34,7 @@ export function handleSummary(data) {
 }
 
 export default function () {
-  const baseUrl = 'https://github.com/';
+  const baseUrl = 'https://deckofcardsapi.com/api/deck/new/';
 
   const params = {
     headers: {
